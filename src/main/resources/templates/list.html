@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Todoリスト</title>
+	<link rel="stylesheet" href="css/styles.css">
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+	<script src="js/jsDate.js"></script>
+</head>
+
+<body>
+	<form method="get" th:action="@{/list}">
+		<div class="header">
+			<div>TODOリスト</div>
+			<div>
+				<select id="selectOption" onchange="redirectToNextPage()">
+					<option value="worklist" selected>作業一覧</option>
+					<option value="register">作業登録</option>
+				</select>
+				<script>
+					function redirectToNextPage() {
+						var selectedOption = document.getElementById("selectOption").value;
+						if (selectedOption === "register") {
+							window.location.href = "/register";
+						}
+					}
+				</script>
+			</div>
+		</div>
+	</form>
+	<form method="post" th:action="@{/logout}" class="form-container">
+		<div>
+			<span th:text="${name.familyname}" class="span"></span>
+			<span th:text="${name.firstname}" class="span"></span>
+			<button class="button-class">ログアウト</button>
+		</div>
+	</form>
+	<form th:object="${userListForm}" class="form-container" method="get" th:action="@{/list}">
+		<div class="button">
+			<input type="text" class="search-input" placeholder="担当者で検索" th:field="*{user}">
+			<input type="text" class="search-input" placeholder="項目で検索" th:field="*{itemName}">
+			<button class="button-class">search</button>
+		</div>
+	</form>
+	<div class="container mt-4">
+		<table class="table table-striped table-bordered table-hover">
+			<thead class="thead-dark">
+				<tr>
+					<th class="th-width">項目</th>
+					<th class="th-width">担当者</th>
+					<th class="th-width">登録日</th>
+					<th class="th-width">期限日</th>
+					<th class="th-width">完了日</th>
+					<th class="th-width">操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="item:${userList}"
+					th:style="${item.finishedDate != null} ? 'text-decoration: line-through;' : ''">
+					<td th:text="${item.itemName}"></td>
+					<td th:text="${item.user}"></td>
+					<td th:text="${#dates.format(item.registrationDate,'YYYY-MM-dd')}"></td>
+					<td th:text="${#dates.format(item.expireDate,'YYYY-MM-dd')}"></td>
+					<td th:text="${#dates.format(item.finishedDate,'YYYY-MM-dd')}"></td>
+					<td>
+						<div class="btn-group" role="group" aria-label="Button Group">
+							<!-- 完了ボタン -->
+							<form action="/complete" method="post" class="btn-group"
+								th:if="${item.finishedDate == null}">
+								<input type="hidden" name="id" th:value="${item.id}" />
+								<button type="submit" class="btn btn-success">完了</button>
+							</form>
+							<!-- 修正ボタン -->
+							<form action="/edit" method="get" class="btn-group">
+								<input type="hidden" name="id" th:value="${item.id}" />
+								<button type="submit" class="btn btn-warning">修正</button>
+							</form>
+							<!-- 削除ボタン -->
+							<form action="/delete" method="post" class="btn-group">
+								<input type="hidden" name="id" th:value="${item.id}" />
+								<button type="submit" class="btn btn-danger">削除</button>
+							</form>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</form>
+</body>
+
+</html>
